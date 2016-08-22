@@ -17,6 +17,7 @@
         processing games as a generator
         adjust pulling and formatting data
         dump/load data from json file
+        include tournament information (gender, location, year, etc)
 '''
 
 
@@ -45,15 +46,28 @@ class Tournament:
     def __len__(self):
         return len(self.games)
 
+    def load_tournament_data(self):
+        ''' Loads tournament meta-data (location, gender, date)'''
+        site = r'http://results.worldcurling.org/Championship/Details/'
+        r = requests.get('{}{}'.format(site, self.id))
+        assert r.status_code == requests.codes.ok
+        soup = BeautifulSoup(r.text, 'html.parser')
+        data = soup.find('div', class_='col-md-3')
+        data = data.find_all('div', class_='col-md-12')
+        data = [d.text.strip() for d in data]
+        self.gender = data[0]
+        self.date = data[-1]
+        self.location = ' '.join([d.strip() for d in data[2].split()])
+
     def load_all_games(self):
         ''' Pulls all data from the default WCF results page and saves each
             game as a BoxScores object in self.games
         '''
-        _r = self._load_tourney_data()
+        _r = self._load_game_data()
         _box_scores = self._load_box_scores(_r)
         self._convert_box_scores(_box_scores)
 
-    def _load_tourney_data(self):
+    def _load_game_data(self):
         print('pulling data from results.worldcurling.org...')
         params = {'tournamentId': self.id, 'associationId': 0, 'drawNumber': 0}
         site = r'http://results.worldcurling.org/Championship/DisplayResults'
