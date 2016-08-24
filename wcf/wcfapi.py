@@ -37,24 +37,29 @@ class WCF:
         '''
         surname = surname if surname else 'none'
         details = details if details else 'none'
-        r = requests.get('{}/People'.format(self.base),
-                         headers={'Authorize': self.token},
-                         params={'surname': surname, 'details': details},
-                         timeout=self.timeout)
-        assert r.status_code == requests.codes.ok
-        return r.json()
+        params = {'surname': surname, 'details': details}
+        return self._get_param_data('People', params=params)
 
     def get_draws_by_tournament(self, id):
-        r = requests.get('{}/Games'.format(self.base),
-                         params={'tournamentId': id},
+        return self._get_param_data('Games', params={'tournamentId': id})
+
+    def get_fact(self):
+        return self._get_non_param_data('Facts')
+
+    def get_classes(self):
+        return self._get_non_param_data('BasicInformation/CompetitionClasses')
+
+    def _get_param_data(self, endpoint, params):
+        r = requests.get('{}/{}'.format(self.base, endpoint),
+                         params=params,
                          headers={'Authorize': self.token},
                          timeout=self.timeout)
         assert r.status_code == requests.codes.ok
         return r.json()
 
-    def get_fact(self):
-        r = requests.get('{}/Facts'.format(self.base),
+    def _get_non_param_data(self, endpoint):
+        r = requests.get('{}/{}'.format(self.base, endpoint),
                          headers={'Authorize': self.token},
                          timeout=self.timeout)
-        assert r.status_code == requests.codes.ok
+        assert r.status_code == requests.code.ok
         return r.json()
