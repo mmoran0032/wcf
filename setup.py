@@ -16,7 +16,7 @@ setup(
     long_description=readme,
     author='Mike Moran',
     author_email='mmoran0032@gmail.com',
-    # url='https://github.com/mmoran0032/wcf',
+    url='https://github.com/mmoran0032/wcf',
     license=license,
     packages=find_packages(exclude=('tests',))
 )
