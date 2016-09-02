@@ -61,5 +61,5 @@ class WCF:
         r = requests.get('{}/{}'.format(self.base, endpoint),
                          headers={'Authorize': self.token},
                          timeout=self.timeout)
-        assert r.status_code == requests.code.ok
+        assert r.status_code == requests.codes.ok
         return r.json()
