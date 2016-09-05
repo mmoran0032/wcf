@@ -1,4 +1,4 @@
-''' wcfapi.py -- Access results database through official means
+''' wcf.py -- Access results database through official means
 
     The World Curling Federation maintains a results database that can be
     accessed through normal REST means, but requires you to login and append
@@ -49,14 +49,8 @@ class WCF:
         assert r.status_code == requests.codes.ok, 'bad response code'
         self.token = r.json()
 
-    def get_people(self, surname=None, details=None):
-        surname = surname if surname else 'none'
-        details = details if details else 'none'
-        params = {'surname': surname, 'details': details}
-        return self._get_param_data('People', params=params)
-
-    def get_draws_by_tournament(self, id):
-        params = {'tournamentId': id, 'details': 'ends'}
+    def get_draws_by_tournament(self, id, details='ends'):
+        params = {'tournamentId': id, 'details': details}
         return self._get_param_data('Games', params=params)
 
     def _get_param_data(self, endpoint, params):
