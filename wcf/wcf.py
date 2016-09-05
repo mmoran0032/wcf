@@ -34,12 +34,12 @@ class WCF:
             _status = 'NOT ACTIVE'
         return 'WCF API connection: {}'.format(_status)
 
-    def load_and_connect(self):
-        self._load_user()
+    def load_and_connect(self, filename='credentials.json'):
+        self._load_user(filename)
         self._connect()
 
-    def _load_user(self):
-        with open('credentials.json', 'r') as f:
+    def _load_user(self, filename):
+        with open(filename, 'r') as f:
             self.credentials = json.load(f)
 
     def _connect(self):
