@@ -3,18 +3,26 @@
 from setuptools import setup, find_packages
 
 
-with open('README.rst') as f:
+with open('README.rst', 'r') as f:
     readme = f.read()
 
-with open('LICENSE') as f:
+with open('LICENSE', 'r') as f:
     license = f.read()
+
+with open('wcf/__init__.py', 'r') as f:
+    data = f.read().split('\n')
+    for line in data:
+        if line.startswith('__version__'):
+            version = line.split()[-1]
+        elif line.startswith('__author__'):
+            author = ' '.join(line.split()[-2:])
 
 setup(
     name='wcf',
-    version='0.0.1',
+    version=version,
     description='Tournament data wrangler for the World Curling Federation',
     long_description=readme,
-    author='Mike Moran',
+    author=author,
     author_email='mmoran0032@gmail.com',
     url='https://github.com/mmoran0032/wcf',
     license=license,

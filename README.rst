@@ -51,8 +51,8 @@ Requires ``bs4`` (Beautiful Soup).
 
 Usage is simple::
 
-    import wcf_parsing as wcf
-    t = wcf.Tournament(tournamentID)
+    from wcf import wcf_parsing as wcfp
+    t = wcfp.Tournament(tournamentID)
     t.load_all_games()
 
     final = t.games[-1]
@@ -62,7 +62,3 @@ From this starting point, a lot of the "business logic" that I put into the
 previous two notebooks/scripts is within this module. The aggregate data part
 is still another layer on top of the access, but this should help for batch
 processing.
-
-Testing is also simple::
-
-    nosetests tests [--with-coverage --cover-package=wcf]
