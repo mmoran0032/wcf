@@ -51,12 +51,12 @@ class WCF:
 
     def get_draws_by_tournament(self, id, details='ends'):
         params = {'tournamentId': id, 'details': details}
-        return self._get_param_data('Games', params=params)
+        return self._get_generic_data('Games', params=params)
 
-    def _get_param_data(self, endpoint, params):
+    def _get_generic_data(self, endpoint, **kwargs):
         r = requests.get('{}/{}'.format(self.base, endpoint),
-                         params=params,
                          headers={'Authorize': self.token},
-                         timeout=self.timeout)
+                         timeout=self.timeout,
+                         **kwargs)
         assert r.status_code == requests.codes.ok, 'bad response code'
         return r.json()
