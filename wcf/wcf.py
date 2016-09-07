@@ -11,35 +11,35 @@
 
 
 import json
+import os
 
 import requests
 
 
 class WCF:
-    def __init__(self, timeout=1.0, connect=False):
+    def __init__(self, *, timeout=10.0, cred_file='credentials.json'):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
         self.token = None
-        if connect:
-            self.load_and_connect()
+        self.cred_file = cred_file
 
     def __bool__(self):
         return self.token is not None
 
     def __str__(self):
         if self.token is not None:
-            _status = '{} ({} s)'.format(self.credentials['UserName'],
+            _status = '{} ({} s)'.format(self.credentials['Username'],
                                          self.timeout)
         else:
             _status = 'NOT ACTIVE'
         return 'WCF API connection: {}'.format(_status)
 
-    def load_and_connect(self, filename='credentials.json'):
-        self._load_user(filename)
+    def load_and_connect(self):
+        self._load_user()
         self._connect()
 
-    def _load_user(self, filename):
-        with open(filename, 'r') as f:
+    def _load_user(self):
+        with open(self.cred_file, 'r') as f:
             self.credentials = json.load(f)
 
     def _connect(self):
@@ -60,3 +60,12 @@ class WCF:
                          **kwargs)
         assert r.status_code == requests.codes.ok, 'bad response code'
         return r.json()
+
+    @property
+    def cred_file(self):
+        return self._cred_file
+
+    @cred_file.setter
+    def cred_file(self, new_cred_file):
+        assert os.path.isfile(new_cred_file), 'file does not exist'
+        self._cred_file = new_cred_file

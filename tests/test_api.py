@@ -17,6 +17,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(str(self.c), 'WCF API connection: NOT ACTIVE')
 
     def test_load_user(self):
-        self.c._load_user('/home/mikemoran/bin/wcf/credentials.json')
+        self.c.cred_file = '/home/mikemoran/bin/wcf/credentials.json'
+        self.c._load_user()
         self.assertIn('Username', self.c.credentials)
         self.assertIn('Password', self.c.credentials)
