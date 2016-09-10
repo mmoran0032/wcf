@@ -17,11 +17,13 @@ import requests
 
 
 class WCF:
-    def __init__(self, *, timeout=10.0, cred_file='credentials.json'):
+    def __init__(self, *, timeout=10.0, cred_file=None, connect=False):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
         self.token = None
-        self.cred_file = cred_file
+        self.cred_file = cred_file if cred_file else 'credentials.json'
+        if connect:
+            self.load_and_connect()
 
     def __bool__(self):
         return self.token is not None
@@ -46,19 +48,22 @@ class WCF:
         r = requests.post('{}/Authorize'.format(self.base),
                           data=self.credentials,
                           timeout=self.timeout)
-        assert r.status_code == requests.codes.ok, 'bad response code'
+        assert r.status_code == requests.codes.ok, r.status_code
         self.token = r.json()
 
     def get_draws_by_tournament(self, id, details='ends'):
         params = {'tournamentId': id, 'details': details}
         return self._get_generic_data('Games', params=params)
 
+    def get_tournaments_by_type(self, id):
+        return self._get_generic_data('Tournaments/Type/{}'.format(id))
+
     def _get_generic_data(self, endpoint, **kwargs):
         r = requests.get('{}/{}'.format(self.base, endpoint),
                          headers={'Authorize': self.token},
                          timeout=self.timeout,
                          **kwargs)
-        assert r.status_code == requests.codes.ok, 'bad response code'
+        assert r.status_code == requests.codes.ok, r.status_code
         return r.json()
 
     @property
