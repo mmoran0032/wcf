@@ -34,3 +34,10 @@ You can create your connection with::
     import wcf
     t = wcf.WCF()
     t.load_and_connect()
+    # or
+    t2 = wcf.WCF(connect=True)
+
+Your credentials can be in a different location that your project directory.
+Specify that with::
+
+    t = wcf.WCF(cred_file='path/to/file.json')

@@ -13,9 +13,9 @@ with open('wcf/__init__.py', 'r') as f:
     data = f.read().split('\n')
     for line in data:
         if line.startswith('__version__'):
-            version = line.split()[-1]
+            version = line.split()[-1].replace('\'', '')
         elif line.startswith('__author__'):
-            author = ' '.join(line.split()[-2:])
+            author = ' '.join(line.split()[-2:]).replace('\'', '')
 
 setup(
     name='wcf',

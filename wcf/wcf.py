@@ -11,17 +11,19 @@
 
 
 import json
-import os
+from numbers import Number
+from os.path import isfile
 
 import requests
 
 
 class WCF:
-    def __init__(self, *, timeout=10.0, cred_file=None, connect=False):
+    def __init__(self, cred_file='credentials.json', *,
+                 timeout=10.0, connect=False):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
         self.token = None
-        self.cred_file = cred_file if cred_file else 'credentials.json'
+        self.cred_file = cred_file
         if connect:
             self.load_and_connect()
 
@@ -72,5 +74,15 @@ class WCF:
 
     @cred_file.setter
     def cred_file(self, new_cred_file):
-        assert os.path.isfile(new_cred_file), 'file does not exist'
+        assert isfile(new_cred_file), 'file does not exist'
         self._cred_file = new_cred_file
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, new_timeout):
+        assert isinstance(new_timeout, Number), 'timeout must be a number'
+        assert new_timeout > 0, 'timeout must be positive'
+        self._timeout = new_timeout
