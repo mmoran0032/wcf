@@ -18,12 +18,10 @@ import requests
 
 
 class WCF:
-    def __init__(self, cred_file='credentials.json', *,
-                 timeout=10.0, connect=False):
+    def __init__(self, *, timeout=10.0, connect=False):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
         self.token = None
-        self.cred_file = cred_file
         if connect:
             self.load_and_connect()
 
@@ -38,7 +36,8 @@ class WCF:
             _status = 'NOT ACTIVE'
         return 'WCF API connection: {}'.format(_status)
 
-    def load_and_connect(self):
+    def load_and_connect(self, cred_file='credentials.json'):
+        self.cred_file = cred_file
         self._load_user()
         self._connect()
 
