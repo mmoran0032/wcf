@@ -22,7 +22,8 @@ class Tournament:
             self.data = json.load(f)
 
     def convert(self):
-        self.games = [Game(g).convert() for g in self.data]
+        self.games = [Game(g) for g in self.data]
+        self.games = [g.convert() for g in self.games]
         if not self.keep_raw:
             del self.data
 
@@ -43,7 +44,6 @@ class Game:
         self.metadata = {}
         self.aggregate = {}
         self.keep_raw = keep_raw
-        return self
 
     def convert(self):
         self._extract_metadata()
