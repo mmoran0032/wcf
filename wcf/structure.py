@@ -8,6 +8,7 @@
 '''
 
 
+from collections import namedtuple
 from datetime import datetime
 import json
 
@@ -21,36 +22,46 @@ class Tournament:
         with open(self.file, 'r') as f:
             self.data = json.load(f)
 
-    def convert(self):
-        self.games = [Game(g) for g in self.data]
-        self.games = [g.convert() for g in self.games]
+    def convert_all(self):
+        self.games = []
+        for game in self.data:
+            _g = Game(game)
+            self.games.append(_g.convert().aggregate())
         if not self.keep_raw:
             del self.data
 
 
 class Game:
-    fields = ['TourneyID', 'GameID', 'DrawNumber', 'TotalEnds', 'LSFE',
-              'WTeam', 'WScore', 'WHammerEnds', 'WHammerScoringEnds',
-              'WHammer2ScoringEnds', 'WHammerPoints', 'WHammerBlanks',
-              'WStolenEnds', 'WStolenPoints', 'WAccuracy',
-              'LTeam', 'LScore', 'LHammerEnds', 'LHammerScoringEnds',
-              'LHammer2ScoringEnds', 'LHammerPoints', 'LHammerBlanks',
-              'LStolenEnds', 'LStolenPoints', 'LAccuracy']
+    fields = ['TourneyID', 'GameID', 'DrawNumber', 'TotalEnds', 'LSFE', 'Date']
+    team_fields = ['Team', 'Score', 'HammerEnds', 'HammerScoringEnds',
+                   'HammerScoring2Ends', 'HammerPoints', 'HammerBlanks',
+                   'StolenEnds', 'StolenPoints', 'Accuracy']
 
     def __init__(self, data, *, keep_raw=True):
         self.data = data
         self.teams = []
         self.ends = []
         self.metadata = {}
-        self.aggregate = {}
+        self.aggregate_data = None
         self.keep_raw = keep_raw
+
+    def __str__(self):
+        if self.aggregate_data:
+            data = [*(str(self.metadata[key]) for key in self.fields),
+                    *(str(i) for i in self.aggregate_data[self.winner]),
+                    *(str(i) for i in self.aggregate_data[not self.winner])]
+            return ','.join(data)
+        else:
+            return 'raw wcf.structure.Game: {}'.format(repr(self))
 
     def convert(self):
         self._extract_metadata()
         self._extract_ends()
-        self._extrat_teams()
+        self._extract_teams()
+        self.winner = self._determine_winner()
         if not self.keep_raw:
             del self.data
+        return self
 
     def _extract_metadata(self):
         self.metadata['TourneyID'] = self.data['TournamentId']
@@ -67,10 +78,21 @@ class Game:
         return datetime(*date)
 
     def _extract_ends(self):
-        ends = self.data['Ends']
-        for end in ends:
+        for end in self.data['Ends']:
             self.ends.append((end['Team1'], end['Team2']))
 
-    def _extrat_teams(self):
+    def _extract_teams(self):
+        team_data = namedtuple('Team', ['ID', 'Code', 'Name'])
         for team in ('Team1', 'Team2'):
+            data = self.data[team]['Team']
+            self.teams.append(
+                team_data(data['AssociationId'], data['Code'], data['Name'])
+            )
+
+    def _determine_winner(self):
+        scores = self.data['Team1']['Result'], self.data['Team2']['Result']
+        return 0 if scores[0] > scores[1] else 1
+
+    def aggregate(self):
+        for end in self.ends:
             pass
