@@ -18,6 +18,13 @@ class Tournament:
         self.file = file
         self.keep_raw = keep_raw
 
+    def __iter__(self):
+        for g in self.games:
+            yield g
+
+    def __getitem__(self, index):
+        return self.games[index]
+
     def load(self):
         with open(self.file, 'r') as f:
             self.data = json.load(f)
@@ -25,10 +32,9 @@ class Tournament:
     def convert_all(self):
         self.games = []
         for game in self.data:
-            _g = Game(game)
-            self.games.append(_g.convert().aggregate())
-        if not self.keep_raw:
-            del self.data
+            _g = Game(game, keep_raw=self.keep_raw)
+            self.games.append(_g.convert())
+        del self.data
 
 
 class Game:
@@ -60,16 +66,16 @@ class Game:
         self._extract_teams()
         self.winner = self._determine_winner()
         if not self.keep_raw:
-            del self.data
+            self.remove_raw()
         return self
 
     def _extract_metadata(self):
-        self.metadata['TourneyID'] = self.data['TournamentId']
-        self.metadata['GameID'] = self.data['Id']
-        self.metadata['DrawNumber'] = self.data['DrawInfo']['DrawNumber']
-        self.metadata['TotalEnds'] = len(self.data['Ends'])
+        self.metadata['tourney_id'] = self.data['TournamentId']
+        self.metadata['game_id'] = self.data['Id']
+        self.metadata['draw_number'] = self.data['DrawInfo']['DrawNumber']
+        self.metadata['total_ends'] = len(self.data['Ends'])
         self.metadata['LSFE'] = self.data['TossWinner']
-        self.metadata['Date'] = self._convert_date()
+        self.metadata['date'] = self._convert_date()
 
     def _convert_date(self):
         date = self.data['DrawInfo']['GameStart']
@@ -82,7 +88,7 @@ class Game:
             self.ends.append((end['Team1'], end['Team2']))
 
     def _extract_teams(self):
-        team_data = namedtuple('Team', ['ID', 'Code', 'Name'])
+        team_data = namedtuple('Team', ['id', 'code', 'name'])
         for team in ('Team1', 'Team2'):
             data = self.data[team]['Team']
             self.teams.append(
@@ -92,6 +98,9 @@ class Game:
     def _determine_winner(self):
         scores = self.data['Team1']['Result'], self.data['Team2']['Result']
         return 0 if scores[0] > scores[1] else 1
+
+    def remove_raw(self):
+        del self.data
 
     def aggregate(self):
         for end in self.ends:
