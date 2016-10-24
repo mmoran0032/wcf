@@ -36,6 +36,9 @@ class Tournament:
             self.games.append(_g.convert())
         del self.data
 
+    def remove_raw(self):
+        del self.data
+
 
 class Game:
     fields = ['TourneyID', 'GameID', 'DrawNumber', 'TotalEnds', 'LSFE', 'Date']
@@ -54,8 +57,10 @@ class Game:
     def __str__(self):
         if self.aggregate_data:
             data = [*(str(self.metadata[key]) for key in self.fields),
-                    *(str(i) for i in self.aggregate_data[self.winner]),
-                    *(str(i) for i in self.aggregate_data[not self.winner])]
+                    *(str(self.aggregate_data[self.winner][key])
+                        for key in self.team_fields),
+                    *(str(self.aggregate_data[not self.winner][key])
+                        for key in self.team_fields)]
             return ','.join(data)
         else:
             return 'raw wcf.structure.Game: {}'.format(repr(self))
@@ -70,12 +75,12 @@ class Game:
         return self
 
     def _extract_metadata(self):
-        self.metadata['tourney_id'] = self.data['TournamentId']
-        self.metadata['game_id'] = self.data['Id']
-        self.metadata['draw_number'] = self.data['DrawInfo']['DrawNumber']
-        self.metadata['total_ends'] = len(self.data['Ends'])
+        self.metadata['TourneyID'] = self.data['TournamentId']
+        self.metadata['GameID'] = self.data['Id']
+        self.metadata['DrawNumber'] = self.data['DrawInfo']['DrawNumber']
+        self.metadata['TotalEnds'] = len(self.data['Ends'])
         self.metadata['LSFE'] = self.data['TossWinner']
-        self.metadata['date'] = self._convert_date()
+        self.metadata['Date'] = self._convert_date()
 
     def _convert_date(self):
         date = self.data['DrawInfo']['GameStart']
@@ -103,5 +108,36 @@ class Game:
         del self.data
 
     def aggregate(self):
-        for end in self.ends:
-            pass
+        _types = self._determine_end_types()
+        pass
+
+    def _determine_end_types(self):
+        self.hammer = self.metadata['LSFE']
+        end_types = [self._process_single_end(end) for end in zip(*self.ends)]
+        del self.hammer
+        return list(zip(*end_types))
+
+    def _process_single_end(self, end):
+        types = self._determine_end_type(end)
+        self._update_hammer(end)
+        return types
+
+    def _determine_end_type(self, end):
+        if end[0] > 0 and self.hammer == 0:
+            return 'score-with-hammer', 'blank'
+        elif end[1] > 0 and self.hammer == 1:
+            return 'blank', 'score-with-hammer'
+        elif end[0] > 0 and self.hammer == 1:
+            return 'steal', 'blank'
+        elif end[1] > 0 and self.hammer == 0:
+            return 'blank', 'steal'
+        elif end[0] == end[1] == 0 and self.hammer == 0:
+            return 'blank-with-hammer', 'blank'
+        elif end[0] == end[1] == 0 and self.hammer == 1:
+            return 'blank', 'blank-with-hammer'
+
+    def _update_hammer(self, end):
+        if end[0] > 0:
+            self.hammer = 1
+        elif end[1] > 0:
+            self.hammer = 0
