@@ -18,26 +18,28 @@ API
 
 Official access to the WCF's results database must be obtained prior to using
 the official API to access the information. Access follows standard REST
-conventions. I am implementing this access method in ``wcf.py``, which only
-requires the user to obtain a user name and password from the WCF to proceed.
-
-Once you have access, create a ``credentials.json`` file in the same directory
-you are working in as follows::
+conventions. Create a ``credentials.json`` file as follows::
 
     {
         "Username": "user",
         "Password": "something+else"
     }
 
-You can create your connection with::
+The file can either be placed in the same directory, or you can pass the path
+to the file to ``WCF.load_and_connect()`` as an argument.
+
+
+Example Usage
+-------------
+
+As a quick example, let's look at the final game from the World Men's Curling
+Championship 2016 in Basel, SUI::
 
     import wcf
-    t = wcf.WCF()
-    t.load_and_connect()
-    # or
-    t2 = wcf.WCF(connect=True)
 
-Your credentials can be in a different location that your project directory.
-Specify that with::
+    conn = wcf.WCF()
+    conn.load_and_connect()
+    draws = conn.get_draws_by_tournament(555)
 
-    t = wcf.WCF(cred_file='path/to/file.json')
+    final = wcf.Game(draws[-1])
+    print(final)
