@@ -17,5 +17,5 @@ class Tournament:
     def __getitem__(self, index):
         return self.data[index]
 
-    def convert(self):
-        self.data = [game.Game(d) for d in self.data]
+    def convert(self, keep_raw=True):
+        self.data = [game.Game(d, keep_raw=keep_raw) for d in self.data]

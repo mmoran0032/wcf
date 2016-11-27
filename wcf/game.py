@@ -12,9 +12,11 @@ team = namedtuple('Team', ['name', 'accuracy', 'result'])
 
 class Game:
 
-    def __init__(self, data):
+    def __init__(self, data, *, keep_raw=True):
         self.data = data
         self.convert()
+        if not keep_raw:
+            self.delete_raw()
 
     def __str__(self):
         return '\n'.join(self._make_team_string(i) for i in (0, 1))
@@ -27,10 +29,14 @@ class Game:
                                           ends, team.result)
 
     def convert(self):
+        if hasattr(self, 'data'):
+            self._convert_if_available()
+        self.winner = 0 if self.teams[0].result > self.teams[1].result else 1
+
+    def _convert_if_available(self):
         self._convert_teams()
         self._convert_ends()
         self.hammer = self.data['TossWinner'] - 1
-        self.winner = 0 if self.teams[0].result > self.teams[1].result else 1
 
     def _convert_teams(self):
         teams = self.data['Team1'], self.data['Team2']
@@ -40,3 +46,6 @@ class Game:
     def _convert_ends(self):
         self.ends = [[end[team] for end in self.data['Ends']]
                      for team in ['Team1', 'Team2']]
+
+    def delete_raw(self):
+        del self.data
