@@ -36,6 +36,7 @@ class Game:
     def _convert_if_available(self):
         self._convert_teams()
         self._convert_ends()
+        self.draw = self.data['Round']['Name']
         self.hammer = self.data['TossWinner'] - 1
 
     def _convert_teams(self):
