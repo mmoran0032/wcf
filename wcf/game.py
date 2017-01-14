@@ -22,11 +22,14 @@ class Game:
         return '\n'.join(self._make_team_string(i) for i in (0, 1))
 
     def _make_team_string(self, index):
-        team = self.teams[index]
-        ends = ' '.join(str(e) for e in self.ends[index])
-        lsfe = '*' if index == self.hammer else ' '
-        return '{}{} {} | {} | {}'.format(team.name, lsfe, team.accuracy,
-                                          ends, team.result)
+        try:
+            team = self.teams[index]
+            ends = ' '.join(str(e) for e in self.ends[index])
+            lsfe = '*' if index == self.hammer else ' '
+            return '{}{} {} | {} | {}'.format(team.name, lsfe, team.accuracy,
+                                              ends, team.result)
+        except:
+            return 'unconverted wcf.Game'
 
     def convert(self):
         if hasattr(self, 'data'):
