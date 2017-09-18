@@ -40,8 +40,15 @@ Championship 2016 in Basel, SUI::
     conn = wcf.WCF()
     conn.load_and_connect()
     draws = conn.get_draws_by_tournament(555)
-    tourney = wcf.Tournament(draws)
-    tourney.convert(keep_raw=False)
 
-    final = tourney[-1]
+    final = wcf.Game(draws[-1])
+    final.convert()
     print(final)
+
+
+Testing
+-------
+
+The test suite can be run with::
+
+    py.test --cov=wcf

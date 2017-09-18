@@ -7,14 +7,17 @@
 
 from collections import namedtuple
 
-Team = namedtuple('Team', ['name', 'accuracy', 'result'])
-End = namedtuple('End', ['number', 'hammer', 'score_0', 'score_1'])
+Team = namedtuple('Team', 'name acc result')
+End = namedtuple('End', 'number hammer score_0 score_1')
 
 
 class Game:
 
     def __init__(self, data):
         self.data = data
+        self.meta_data = dict()
+        self.teams = None
+        self.ends = None
 
     def __str__(self):
         return '\n'.join(self._make_team_string(i) for i in (0, 1))
@@ -24,22 +27,17 @@ class Game:
             team = self.teams[index]
             ends = ' '.join(str(e[index + 2]) for e in self.ends)
             lsfe = '*' if index == self.lsfe else ' '
-            return '{}{} {} | {} | {}'.format(team.name, lsfe, team.accuracy,
-                                              ends, team.result)
+            return f'{team.name}{lsfe} {team.acc} | {ends} | {team.result}'
         except:
             return 'unconverted wcf.Game'
 
     def convert(self):
-        if self.data:
-            self._convert_if_available()
-        self.winner = 0 if self.teams[0].result > self.teams[1].result else 1
-        self.data = None
-
-    def _convert_if_available(self):
-        self.lsfe = self.data['TossWinner'] - 1
+        self.meta_data['lsfe'] = self.data['TossWinner'] - 1
         self._convert_teams()
         self._convert_ends()
-        self.draw = self.data['Round']['Name']
+        self.meta_data['winner'] = 0
+        if self.teams[0].result < self.teams[1].result:
+            self.meta_data['winner'] = 1
 
     def _convert_teams(self):
         teams = self.data['Team1'], self.data['Team2']
@@ -54,7 +52,7 @@ class Game:
 
     def _find_hammer(self, ends):
         hammer = [0] * len(ends)
-        hammer[0] = self.lsfe
+        hammer[0] = self.meta_data['lsfe']
         for i, end in enumerate(ends[:-1]):
             hammer[i + 1] = self._get_hammer_change(end, hammer[i])
         return hammer

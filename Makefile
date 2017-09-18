@@ -2,8 +2,7 @@ install:
 	python3 setup.py install --user
 
 test:
-	nosetests tests
+	py.test
 
 cover:
-	nosetests tests --with-coverage --cover-package=wcf
-
+	py.test --cov=wcf

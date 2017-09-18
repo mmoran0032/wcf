@@ -16,7 +16,6 @@ import requests
 
 
 class WCF:
-
     def __init__(self, *, timeout=10.0):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
@@ -39,15 +38,15 @@ class WCF:
                           data=self.credentials, timeout=self.timeout)
         self.token = self._check_and_return(r)
 
-    def get_draws_by_tournament(self, id, *, details='ends'):
-        params = {'tournamentId': id, 'details': details}
+    def get_draws_by_tournament(self, id_, *, details='ends'):
+        params = {'tournamentId': id_, 'details': details}
         return self._access_wcf('Games', params=params)
 
-    def get_tournaments_by_type(self, id):
-        return self._access_wcf('Tournaments/Type/{}'.format(id))
+    def get_tournaments_by_type(self, id_):
+        return self._access_wcf(f'Tournaments/Type/{id_}')
 
     def _access_wcf(self, endpoint, **kwargs):
-        r = requests.get('{}/{}'.format(self.base, endpoint),
+        r = requests.get(f'{self.base}/{endpoint}',
                          headers={'Authorize': self.token},
                          timeout=self.timeout,
                          **kwargs)
