@@ -4,9 +4,6 @@
     accessed through normal REST means, but requires you to login and append
     your credentials to every request. To ease this, here is a way to access
     the database through official channels.
-
-    This class will be limited initially to what I need it to do, and not to
-    implement the entire functionality of the WCF's API.
 '''
 
 
@@ -23,9 +20,6 @@ class API:
         with open(cred_path, 'r') as f:
             self.credentials = json.load(f)
         self.token = None
-
-    def __bool__(self):
-        return self.token is not None
 
     def connect(self):
         r = requests.post('{}/Authorize'.format(self.base),
