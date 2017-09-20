@@ -36,7 +36,9 @@ Usage is as follows::
     import wcf
 
     conn = wcf.API().connect()
-    # or conn = wcf.API('credentials/wcf.json')
+    # alternatively:
+    # conn = wcf.API('credentials/wcf.json')
+    # conn.connect()
     draws = conn.get_draws_by_tournament(555)
 
 
