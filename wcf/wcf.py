@@ -15,28 +15,23 @@ import json
 import requests
 
 
-class WCF:
-    def __init__(self, *, timeout=10.0):
+class API:
+    def __init__(self, cred_path=None, *, timeout=10.0):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
+        cred_path = cred_path or 'credentials.json'
+        with open(cred_path, 'r') as f:
+            self.credentials = json.load(f)
         self.token = None
 
     def __bool__(self):
         return self.token is not None
 
-    def load_and_connect(self, cred_file=None):
-        self._load_user(cred_file)
-        self._connect()
-
-    def _load_user(self, cred_file):
-        cred_file = cred_file or 'credentials.json'
-        with open(cred_file, 'r') as f:
-            self.credentials = json.load(f)
-
-    def _connect(self):
+    def connect(self):
         r = requests.post('{}/Authorize'.format(self.base),
                           data=self.credentials, timeout=self.timeout)
         self.token = self._check_and_return(r)
+        return self
 
     def get_draws_by_tournament(self, id_, *, details='ends'):
         params = {'tournamentId': id_, 'details': details}

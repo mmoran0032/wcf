@@ -1,5 +1,10 @@
-.ipynb_checkpoints
-.coverage
-credentials.json
-
+__pycache__
+*.egg-info
+build/
+.cache
 dist/
+
+.coverage
+
+# required for testing, but personal access
+credentials.json

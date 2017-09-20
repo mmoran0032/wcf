@@ -1,5 +1,5 @@
-wcf -- World Curling Federation Data Wrangler
-=============================================
+wcf -- World Curling Federation Database Interface
+==================================================
 
 *Note: this package is not officially endorsed or supported by the WCF*
 
@@ -26,29 +26,24 @@ conventions. Create a ``credentials.json`` file as follows::
     }
 
 The file can either be placed in the same directory, or you can pass the path
-to the file to ``WCF.load_and_connect()`` as an argument.
+to the file to ``WCF.API()`` as an argument. The data is returned
+as a formatted JSON response, as each use case of the data could require
+different portions of the response. Since development was directed by what *I*
+needed, not the entire API is implemented.
 
-
-Example Usage
--------------
-
-As a quick example, let's look at the final game from the World Men's Curling
-Championship 2016 in Basel, SUI::
+Usage is as follows::
 
     import wcf
 
-    conn = wcf.WCF()
-    conn.load_and_connect()
+    conn = wcf.API().connect()
+    # or conn = wcf.API('credentials/wcf.json')
     draws = conn.get_draws_by_tournament(555)
-
-    final = wcf.Game(draws[-1])
-    final.convert()
-    print(final)
 
 
 Testing
 -------
 
+Testing requires that you have a credentials file located in this directory.
 The test suite can be run with::
 
     py.test --cov=wcf
