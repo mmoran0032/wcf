@@ -43,6 +43,14 @@ class Scraper:
         _toss_winner = self._extract_hammer(game)
         _ends = self._extract_ends(game)
         _round = self._extract_round(game)
+        _team1, _team2 = self._extract_teams(game)
+        return dict(tournamentId=id_,
+                    Id=0,
+                    Round=dict(Abbreviation=_round),
+                    TossWinner=_toss_winner,
+                    Ends=_ends,
+                    Team1=_team1,
+                    Team2=_team2)
 
     def _extract_hammer(self, game):
         _hammer = game.find_all('td', class_='game-hammer')
@@ -62,28 +70,22 @@ class Scraper:
     def _extract_round(self, game):
         return game.find('th', class_='game-header').text.strip()[0]
 
+    def _extract_teams(self, game):
+        _results = game.find_all('td', class_='game-total')
+        _results = [int(data.text.strip()) for data in _results]
+        _names = game.find_all('td', class_='game-team')
+        _names = [self._reformat_name(name.text.strip()) for name in _names]
+        _team1 = dict(Result=_results[0],
+                      Percentage=0,
+                      Team=dict(Code=_names[0]))
+        _team2 = dict(Result=_results[1],
+                      Percentage=0,
+                      Team=dict(Code=_names[1]))
+        return _team1, _team2
 
-'''
-    Required fields (for current Game processing):
-    {
-        "Team1": {
-            "Result": 0,
-            "Percentage": 0,
-            "Team": {"Code": "XYZ"}
-        },
-        "Team2": {
-            "Result": 0,
-            "Percentage": 0,
-            "Team": {"Code": "XYZ"}
-        },
-        "Id": 0,
-        "Round": {"Abbreviation": "X"},
-        "TournamentId": 0,
-        "TossWinner": 0,
-        "Ends": [
-            {"Team1": 0, "Team2": 0},
-            {"Team1": 0, "Team2": 0},
-            {"Team1": 0, "Team2": 0}
-        ]
-    }
-'''
+    def _reformat_name(self, name):
+        ''' convert country names to (rough) codes '''
+        name = name.replace('of', '').upper().split()
+        if len(name) > 2:
+            return ''.join(entry[0] for entry in name)
+        return name[0][:3]
