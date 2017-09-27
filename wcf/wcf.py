@@ -13,6 +13,13 @@ import requests
 
 
 class API:
+    ''' create connection to WCF database
+
+    cred_path: credential file location. If not specified, assume in
+    current directory and named credentials.json
+    timeout: seconds until requests times out
+    '''
+
     def __init__(self, cred_path=None, *, timeout=10.0):
         self.base = r'http://resultsapi.azurewebsites.net/api'
         self.timeout = timeout
