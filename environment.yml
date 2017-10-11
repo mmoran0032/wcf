@@ -1,0 +1,5 @@
+name: wcf_dev
+dependencies:
+- python=3.6.2
+- requests=2.18.4
+- beautifulsoup4=4.6.0

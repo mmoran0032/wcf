@@ -39,7 +39,6 @@ class Scraper:
 
     def _format_single_game(self, game, id_):
         ''' build out single game dict as below'''
-        # _round = {'Abbreviation': game.find('th', class_='game-header')[0]}
         _toss_winner = self._extract_hammer(game)
         _ends = self._extract_ends(game)
         _round = self._extract_round(game)
