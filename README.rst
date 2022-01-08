@@ -1,3 +1,5 @@
+Not actively maintained here. See `Gitlab <https://gitlab.com/mmoran0032/wcf>`_ for details.
+
 wcf -- World Curling Federation Database Interface
 ==================================================
 
